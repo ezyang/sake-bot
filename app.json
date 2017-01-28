@@ -1,6 +1,6 @@
 {
   "name": "sake-bot",
-  "description": "Bot for transmitting Travis CI status updates to upstream repos on GitHub.  Don't forget to set INTEGRATION_KEY",
+  "description": "Transmit Travis CI updates to upstream repos.  Don't forget to set INTEGRATION_KEY.",
   "repository": "https://github.com/ezyang/sake-bot",
   "logo": "https://raw.githubusercontent.com/ezyang/sake-bot/master/sake-bot.png",
   "keywords": ["travis", "github"],
