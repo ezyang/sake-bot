@@ -1,12 +1,12 @@
 {
   "name": "sake-bot",
-  "description": "Bot for transmitting Travis CI status updates to upstream repos on GitHub",
+  "description": "Bot for transmitting Travis CI status updates to upstream repos on GitHub.  You'll need to upload a multi-line private key from your GitHub integration, heroku config:add INTEGRATION_KEY=$(cat private-key.pem)",
   "repository": "https://github.com/ezyang/sake-bot",
   "logo": "https://raw.githubusercontent.com/ezyang/sake-bot/master/sake-bot.png",
   "keywords": ["travis", "github"],
   "env": {
-    "GITHUB_TOKEN": {
-        "description": "GitHub token"
-    }
+      "INTEGRATION_ID": {
+          "description": "The integration ID, can be found by looking in https://github.com/settings/integrations/sake-bot for something like ID 1221 (or whatever you named the integration)"
+      }
   }
 }
