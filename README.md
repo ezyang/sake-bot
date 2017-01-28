@@ -15,4 +15,6 @@ so it is easy to tell if you are breaking downstream or not.
 
 It is named sake-bot after the salmon, which swims upstream to spawn.
 
+How to test: `curl http://localhost:4567/ -X POST --data-urlencode "payload@sample.json"`
+
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
