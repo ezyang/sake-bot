@@ -39,10 +39,11 @@ post '/' do
         c.adapter Faraday.default_adapter
     end
     meta = JSON.parse(payload["message"])
-    account = meta["account"]
-    repo = meta["repo"]
-    repo_slug = "#{account}/#{repo}"
+    account     = meta["account"]
+    repo        = meta["repo"]
     commit_hash = meta["commit"]
+    tag         = meta["tag"] or "default"
+    repo_slug   = "#{account}/#{repo}"
     if INTEGRATION_KEY
         # https://developer.github.com/early-access/integrations/authentication/
         private_key = OpenSSL::PKey::RSA.new(INTEGRATION_KEY)
@@ -79,7 +80,7 @@ post '/' do
             state: state_travis2github(payload["status_message"]),
             target_url: payload["build_url"],
             description: "Downstream Travis",
-            context: "continuous-integration/downstream-travis"})
+            context: "ci/sake-bot/#{tag}"})
     end
     status response.status
     response.body

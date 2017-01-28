@@ -50,12 +50,16 @@ This webhook is fairly simple to use:
    ```
     { "account": "ezyang",
       "repo": "sozu",
-      "commit": "e793e18190180f7a2340c6d9acb3aa7196a0c459" }
+      "commit": "e793e18190180f7a2340c6d9acb3aa7196a0c459",
+      "tag": "default" }
    ```
 
    this webhook will push a status update to that commit from this
-   repository.  (TODO: Maybe this information should be conveyed
-   by some other channel.)
+   repository.  If you're using the build matrix, you can modify "tag"
+   so that each configuration gets its own report.
+
+   (TODO: Maybe this information should be conveyed by some other
+   fashion rather than JSON commit message.)
 
 There is an important other piece of the puzzle, which is actually
 triggering the subsidiary builds.  There are two strategies:
