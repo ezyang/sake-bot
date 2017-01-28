@@ -3,6 +3,8 @@ require 'json'
 require 'faraday'
 require 'openssl'
 require 'base64'
+require 'jwt'
+require 'faraday/detailed_logger'
 
 $stdout.sync = true
 
@@ -13,10 +15,16 @@ $stdout.sync = true
 DEFAULT_API_HOST = 'https://api.travis-ci.org'
 API_HOST = ENV.fetch('API_HOST', DEFAULT_API_HOST)
 SKIP_VERIFY = ENV.fetch('SKIP_VERIFY', false)
-GITHUB_TOKEN = ENV.fetch('GITHUB_TOKEN')
+GITHUB_TOKEN = ENV.fetch('GITHUB_TOKEN', false)
+INTEGRATION_KEY = ENV.fetch('INTEGRATION_KEY', false)
+INTEGRATION_ID = ENV.fetch('INTEGRATION_ID', 1)
 
 def repo_slug
   env['HTTP_TRAVIS_REPO_SLUG']
+end
+
+get '/' do
+  "Point Travis web hook at me"
 end
 
 post '/' do
@@ -25,15 +33,45 @@ post '/' do
   signature    = request.env["HTTP_SIGNATURE"]
 
   if verify(json_payload, signature)
-    status 200
     payload = JSON.parse(json_payload)
     conn = Faraday.new('https://api.github.com/') do |c|
+        #c.response :detailed_logger
         c.adapter Faraday.default_adapter
     end
     meta = JSON.parse(payload["message"])
-    repo_slug = meta["repo_slug"]
+    account = meta["account"]
+    repo = meta["repo"]
+    repo_slug = "#{account}/#{repo}"
     commit_hash = meta["commit"]
-    conn.authorization :token, GITHUB_TOKEN
+    if INTEGRATION_KEY
+        # https://developer.github.com/early-access/integrations/authentication/
+        private_key = OpenSSL::PKey::RSA.new(INTEGRATION_KEY)
+        key_payload = {
+            iat: Time.now.to_i,
+            exp: Time.now.to_i + 60,
+            iss: INTEGRATION_ID
+        }
+        jwt = JWT.encode(key_payload, private_key, "RS256")
+        response = conn.get do |req|
+            req.url "/integration/installations"
+            req.headers["Authorization"] = "Bearer #{jwt}"
+            req.headers["Accept"] = "application/vnd.github.machine-man-preview+json"
+        end
+        installation_entry = JSON.parse(response.body).find { |e| e["account"]["login"] == account }
+        installation_id = installation_entry["id"]
+        response = conn.post do |req|
+            req.url "/installations/#{installation_id}/access_tokens"
+            req.headers["Authorization"] = "Bearer #{jwt}"
+            req.headers["Accept"] = "application/vnd.github.machine-man-preview+json"
+        end
+        token = JSON.parse(response.body)["token"]
+        conn.authorization :token, token
+    elsif GITHUB_TOKEN
+      conn.authorization :token, GITHUB_TOKEN
+    else
+      status 400
+      return "cannot authorize to GitHub\n"
+    end
     response = conn.post do |req|
         req.url "/repos/#{repo_slug}/statuses/#{commit_hash}"
         req.headers['Content-Type'] = 'application/json'
@@ -43,6 +81,7 @@ post '/' do
             description: "Downstream Travis",
             context: "continuous-integration/downstream-travis"})
     end
+    status response.status
     response.body
   else
     status 400
