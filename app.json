@@ -1,12 +1,15 @@
 {
   "name": "sake-bot",
-  "description": "Transmit Travis CI updates to upstream repos.  Don't forget to set INTEGRATION_KEY.",
+  "description": "Transmit Travis CI updates to upstream GitHub repos.",
   "repository": "https://github.com/ezyang/sake-bot",
   "logo": "https://raw.githubusercontent.com/ezyang/sake-bot/master/sake-bot.png",
   "keywords": ["travis", "github"],
   "env": {
       "INTEGRATION_ID": {
           "description": "The integration ID, can be found by looking in https://github.com/settings/integrations/sake-bot for something like ID 1221 (or whatever you named the integration)"
+      },
+      "INTEGRATION_KEY": {
+          "description": "The integration private key, from a file suffixed with private-key.pem.  Copy paste it in here (don't worry, multiline works.)"
       }
   }
 }
