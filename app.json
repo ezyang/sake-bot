@@ -2,6 +2,6 @@
   "name": "sake-bot",
   "description": "Bot for transmitting Travis CI status updates to upstream repos on GitHub",
   "repository": "https://github.com/ezyang/sake-bot",
-  "logo": "https://raw.githubusercontent.com/ezyang/sake-bot/sake-bot.png",
+  "logo": "https://raw.githubusercontent.com/ezyang/sake-bot/master/sake-bot.png",
   "keywords": ["travis", "github"]
 }

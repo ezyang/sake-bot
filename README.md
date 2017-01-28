@@ -1,5 +1,8 @@
 # sake-bot
 
+
+![sake-bot](https://raw.githubusercontent.com/ezyang/sake-bot/master/sake-bot.png)
+
 This is a bot for taking Travis Web Hook notifications and turning them
 into GitHub status updates for a DIFFERENT (usually upstream)
 repository.
