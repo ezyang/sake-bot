@@ -24,7 +24,7 @@ def repo_slug
 end
 
 get '/' do
-  "Point Travis web hook at me"
+  "Point Travis web hook at me in .travis.yml, see https://docs.travis-ci.com/user/notifications#Configuring-webhook-notifications"
 end
 
 post '/' do
