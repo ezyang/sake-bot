@@ -42,7 +42,7 @@ post '/' do
     account     = meta["account"]
     repo        = meta["repo"]
     commit_hash = meta["commit"]
-    tag         = meta["tag"] or "default"
+    tag         = meta["tag"]
     repo_slug   = "#{account}/#{repo}"
     if INTEGRATION_KEY
         # https://developer.github.com/early-access/integrations/authentication/
@@ -80,7 +80,7 @@ post '/' do
             state: state_travis2github(payload["status_message"]),
             target_url: payload["build_url"],
             description: "Downstream Travis",
-            context: "ci/sake-bot/#{tag}"})
+            context: "#{tag}"})
     end
     status response.status
     response.body
