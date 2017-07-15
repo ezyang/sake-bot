@@ -33,11 +33,13 @@ post '/' do
   signature    = request.env["HTTP_SIGNATURE"]
 
   if verify(json_payload, signature)
+    logger.info("Parsing payload")
     payload = JSON.parse(json_payload)
     conn = Faraday.new('https://api.github.com/') do |c|
         #c.response :detailed_logger
         c.adapter Faraday.default_adapter
     end
+    logger.info("Parsing message")
     meta = JSON.parse(payload["message"])
     account     = meta["account"]
     repo        = meta["repo"]
@@ -53,18 +55,22 @@ post '/' do
             iss: INTEGRATION_ID
         }
         jwt = JWT.encode(key_payload, private_key, "RS256")
+        logger.info("Retrieving app installations")
         response = conn.get do |req|
-            req.url "/integration/installations"
+            req.url "/app/installations"
             req.headers["Authorization"] = "Bearer #{jwt}"
             req.headers["Accept"] = "application/vnd.github.machine-man-preview+json"
         end
+        logger.info(response.body)
         installation_entry = JSON.parse(response.body).find { |e| e["account"]["login"] == account }
-        installation_id = installation_entry["id"]
+        access_tokens_url = installation_entry["access_tokens_url"]
+        logger.info("Authorizing application")
         response = conn.post do |req|
-            req.url "/installations/#{installation_id}/access_tokens"
+            req.url access_tokens_url
             req.headers["Authorization"] = "Bearer #{jwt}"
             req.headers["Accept"] = "application/vnd.github.machine-man-preview+json"
         end
+        logger.info(response.body)
         token = JSON.parse(response.body)["token"]
         conn.authorization :token, token
     elsif GITHUB_TOKEN
